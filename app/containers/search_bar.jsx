@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators} from 'redux';
+import { fetchWeather } from '../actions/index';
 
-export default class SearchBar extends Component {
+class SearchBar extends Component {
   constructor(props) {
     super(props);
 
@@ -11,6 +14,7 @@ export default class SearchBar extends Component {
     // contexto de la misma funcion onInputChange. Por lo tanto al intenar hacer
     // this.setState en la funcion, this será nulo.
     this.onInputChange = this.onInputChange.bind(this);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
   }
 
   onInputChange(event) {
@@ -19,6 +23,11 @@ export default class SearchBar extends Component {
 
   onFormSubmit(event) {
     event.preventDefault();
+
+    // la función está disponible a través de las props, gracias a los metodos
+    // mapDispatchToProps y connect, definidos mas abajo.
+    this.props.fetchWeather(this.state.term);
+    this.setState({ term: '' });
   }
 
   render() {
@@ -38,3 +47,12 @@ export default class SearchBar extends Component {
     );
   }
 }
+
+// Asegura que la accion fluya hacia los middleware y los reducers.
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ fetchWeather }, dispatch);
+}
+
+// Al pasar null como primer parametro indica a redux que no se va a usar o no
+// importa el state mantenido por redux en este contenedor (SearchBar).
+export default connect(null, mapDispatchToProps)(SearchBar);
